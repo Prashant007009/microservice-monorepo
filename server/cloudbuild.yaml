@@ -1,11 +1,11 @@
 steps:
   # Build Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'asia-south1-docker.pkg.dev/midyear-precept-472409-k3/microservices/auth-service:$COMMIT_SHA', '.']
+    args: ['build', '-t', 'asia-south1-docker.pkg.dev/midyear-precept-472409-k3/my-repo/auth-service:$COMMIT_SHA', '.']
 
   # Push image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'asia-south1-docker.pkg.dev/midyear-precept-472409-k3/microservices/auth-service:$COMMIT_SHA']
+    args: ['push', 'asia-south1-docker.pkg.dev/midyear-precept-472409-k3/my-repo/auth-service:$COMMIT_SHA']
 
 images:
-  - 'asia-south1-docker.pkg.dev/midyear-precept-472409-k3/microservices/auth-service:$COMMIT_SHA'
+  - 'asia-south1-docker.pkg.dev/midyear-precept-472409-k3/my-repo/auth-service:$COMMIT_SHA'
