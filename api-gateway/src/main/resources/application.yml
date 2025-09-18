@@ -38,5 +38,5 @@ eureka:
     prefer-ip-address: true
 
 jwt:
-    secret: ?PyUhfYrIUT45Yd^jF+:nGDmS4^$vD&0_k#j*
+    secret: ${JWT_SECRET}
     expiration: 3600 # in seconds
