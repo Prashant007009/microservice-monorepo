@@ -1,0 +1,42 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: gateway-service
+
+  cloud:
+    gateway:
+
+      routes:
+        # Auth Service (clean URL: /api/v1/auth/**)
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/api/v1/auth/**
+
+        # Order Service (clean URL: /api/v1/orders/**)
+        - id: order-service
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/api/v1/orders/**
+
+        # Payment Service (clean URL: /api/v1/payments/**)
+        - id: payment-service
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/api/v1/payments/**
+
+# Eureka configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+
+jwt:
+    secret: ?PyUhfYrIUT45Yd^jF+:nGDmS4^$vD&0_k#j*
+    expiration: 3600 # in seconds
