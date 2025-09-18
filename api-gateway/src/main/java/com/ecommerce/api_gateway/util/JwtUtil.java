@@ -15,17 +15,20 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret}")
-    private String secret;
-    private final SecretKey key = Keys.hmacShaKeyFor(secret.getBytes());
+    private final SecretKey key;
     private final long ACCESS_TOKEN_VALIDITY = 1000 * 60 * 60; // 1 hour
+
+    // ✅ Constructor injection for secret
+    public JwtUtil(@Value("${jwt.secret}") String secret) {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes());
+    }
 
     public String generateAccessToken(String email, long phoneNumber) {
         return Jwts.builder()
-                .subject(email)
+                .setSubject(email)
                 .claim("phoneNumber", phoneNumber)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY))
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY))
                 .signWith(key)
                 .compact();
     }
@@ -33,9 +36,9 @@ public class JwtUtil {
     public boolean validateToken(String token) {
         try {
             Jwts.parser()
-                    .verifyWith(key)
+                    .setSigningKey(key)
                     .build()
-                    .parseSignedClaims(token);
+                    .parseClaimsJws(token);
             return true;
         } catch (JwtException e) {
             return false;
@@ -44,22 +47,20 @@ public class JwtUtil {
 
     public Claims extractAllClaims(String token) {
         return Jwts.parser()
-                .verifyWith(key)
+                .setSigningKey(key)
                 .build()
-                .parseSignedClaims(token)
-                .getPayload();
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     public String extractUsername(String token) {
         return extractAllClaims(token).getSubject();
     }
 
-    // ✅ New: return Authentication object for Spring Security context
     public Authentication getAuthentication(String token) {
         Claims claims = extractAllClaims(token);
         String username = claims.getSubject();
 
-        // For now, default role USER (you can map role claim if present)
         return new UsernamePasswordAuthenticationToken(
                 username,
                 null,
