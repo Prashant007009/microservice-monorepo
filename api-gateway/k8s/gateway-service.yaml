@@ -17,6 +17,12 @@ spec:
         image: asia-south1-docker.pkg.dev/midyear-precept-472409-k3/my-repo/gateway-service:$COMMIT_SHA
         ports:
         - containerPort: 8888
+        env:
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: jwt-secret      # Kubernetes Secret name
+              key: jwt-secret       # Key inside the secret
 ---
 apiVersion: v1
 kind: Service
@@ -28,5 +34,5 @@ spec:
     app: gateway-service
   ports:
   - protocol: TCP
-    port: 80         # cluster internal port (other pods/API Gateway use this)
+    port: 80         # cluster internal port
     targetPort: 8888 # maps to containerPort inside Docker
