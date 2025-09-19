@@ -12,6 +12,7 @@ spec:
       labels:
         app: auth-service
     spec:
+      restartPolicy: Always
       containers:
       - name: auth-service
         image: asia-south1-docker.pkg.dev/midyear-precept-472409-k3/my-repo/auth-service:$COMMIT_SHA
@@ -21,33 +22,33 @@ spec:
         - name: TWILIO_SID
           valueFrom:
             secretKeyRef:
-              name: twilio-sid
-              key: twilio-sid
+              name: app-secrets
+              key: TWILIO_SID
         - name: TWILIO_TOKEN
           valueFrom:
             secretKeyRef:
-              name: twilio-token
-              key: twilio-token
+              name: app-secrets
+              key: TWILIO_TOKEN
         - name: TWILIO_PHONE
           valueFrom:
             secretKeyRef:
-              name: twilio-phone
-              key: twilio-phone
+              name: app-secrets
+              key: TWILIO_PHONE
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: jwt-secret
-              key: jwt-secret
+              name: app-secrets
+              key: JWT_SECRET
         - name: DB_USER
           valueFrom:
             secretKeyRef:
-              name: db-user
-              key: db-user
+              name: app-secrets
+              key: DB_USER
         - name: DB_PASS
           valueFrom:
             secretKeyRef:
-              name: db-pass
-              key: db-pass
+              name: app-secrets
+              key: DB_PASS
 ---
 apiVersion: v1
 kind: Service

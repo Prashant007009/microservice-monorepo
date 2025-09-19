@@ -21,8 +21,8 @@ spec:
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: jwt-secret      # Kubernetes Secret name
-              key: jwt-secret       # Key inside the secret
+              name: app-secrets    # Using the combined secret
+              key: JWT_SECRET      # Key inside the secret
 ---
 apiVersion: v1
 kind: Service
