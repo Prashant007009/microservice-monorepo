@@ -26,22 +26,21 @@ steps:
         'asia-south1-docker.pkg.dev/$_PROJECT_ID/my-repo/$_IMAGE_NAME:$COMMIT_SHA'
       ]
 
-  # 3️⃣ Configure GKE credentials and deploy with updated image tag
+  # 3️⃣ Configure GKE credentials and deploy
   - name: 'gcr.io/cloud-builders/kubectl'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        # Authenticate to GKE cluster
+        # Authenticate to the GKE cluster
         gcloud container clusters get-credentials $_GKE_CLUSTER \
           --region $_GKE_REGION \
           --project $_PROJECT_ID
 
-        # Replace image tag placeholder with commit SHA
-        sed "s|\${IMAGE_TAG}|$COMMIT_SHA|g" server/k8s/$_IMAGE_NAME.yaml > k8s-rendered.yaml
-
-        # Apply the updated Kubernetes manifest
-        kubectl apply -f k8s-rendered.yaml
+        # Update the deployment to use the new image built in this pipeline
+        kubectl set image deployment/$_IMAGE_NAME \
+          $_IMAGE_NAME=asia-south1-docker.pkg.dev/$_PROJECT_ID/my-repo/$_IMAGE_NAME:$COMMIT_SHA \
+          --record
 
 images:
   - 'asia-south1-docker.pkg.dev/$_PROJECT_ID/my-repo/$_IMAGE_NAME:$COMMIT_SHA'
