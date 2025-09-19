@@ -17,7 +17,7 @@ steps:
         'api-gateway'
       ]
 
-  # 2️⃣ Push Docker image
+  # 2️⃣ Push Docker image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     args:
       [
@@ -25,22 +25,21 @@ steps:
         'asia-south1-docker.pkg.dev/$_PROJECT_ID/my-repo/gateway-service:$COMMIT_SHA'
       ]
 
-  # 3️⃣ Configure GKE credentials and deploy to cluster
+  # 3️⃣ Update Kubernetes deployment to use the new image
   - name: 'gcr.io/cloud-builders/kubectl'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        # Authenticate to GKE
+        # Authenticate to the GKE cluster
         gcloud container clusters get-credentials $_GKE_CLUSTER \
           --region $_GKE_REGION \
           --project $_PROJECT_ID
 
-        # Inject commit SHA into Kubernetes manifest
-        sed "s|\${IMAGE_TAG}|$COMMIT_SHA|g" api-gateway/k8s/gateway-service.yaml > k8s-rendered.yaml
-
-        # Apply the updated manifest
-        kubectl apply -f k8s-rendered.yaml
+        # Update deployment image with new commit SHA
+        kubectl set image deployment/gateway-service \
+          gateway-service=asia-south1-docker.pkg.dev/$_PROJECT_ID/my-repo/gateway-service:$COMMIT_SHA \
+          --record
 
 images:
   - 'asia-south1-docker.pkg.dev/$_PROJECT_ID/my-repo/gateway-service:$COMMIT_SHA'
