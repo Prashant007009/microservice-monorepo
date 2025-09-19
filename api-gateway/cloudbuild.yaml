@@ -2,6 +2,7 @@ options:
   logging: CLOUD_LOGGING_ONLY
 
 substitutions:
+  _IMAGE_NAME: gateway-service
   _PROJECT_ID: midyear-precept-472409-k3
   _GKE_CLUSTER: savoryroute-microservice
   _GKE_REGION: asia-south1
@@ -12,7 +13,7 @@ steps:
     args:
       [
         'build',
-        '-t', 'asia-south1-docker.pkg.dev/$_PROJECT_ID/my-repo/gateway-service:$COMMIT_SHA',
+        '-t', 'asia-south1-docker.pkg.dev/$_PROJECT_ID/my-repo/$_IMAGE_NAME:$COMMIT_SHA',
         '-f', 'api-gateway/Dockerfile',
         'api-gateway'
       ]
@@ -22,7 +23,7 @@ steps:
     args:
       [
         'push',
-        'asia-south1-docker.pkg.dev/$_PROJECT_ID/my-repo/gateway-service:$COMMIT_SHA'
+        'asia-south1-docker.pkg.dev/$_PROJECT_ID/my-repo/$_IMAGE_NAME:$COMMIT_SHA'
       ]
 
   # 3️⃣ Update Kubernetes deployment to use the new image
@@ -37,9 +38,9 @@ steps:
           --project $_PROJECT_ID
 
         # Update deployment image with new commit SHA
-        kubectl set image deployment/gateway-service \
-          gateway-service=asia-south1-docker.pkg.dev/$_PROJECT_ID/my-repo/gateway-service:$COMMIT_SHA \
+        kubectl set image deployment/$_IMAGE_NAME \
+          $_IMAGE_NAME=asia-south1-docker.pkg.dev/$_PROJECT_ID/my-repo/$_IMAGE_NAME:$COMMIT_SHA \
           --record
 
 images:
-  - 'asia-south1-docker.pkg.dev/$_PROJECT_ID/my-repo/gateway-service:$COMMIT_SHA'
+  - 'asia-south1-docker.pkg.dev/$_PROJECT_ID/my-repo/$_IMAGE_NAME:$COMMIT_SHA'
