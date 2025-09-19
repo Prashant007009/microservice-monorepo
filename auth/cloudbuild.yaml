@@ -13,8 +13,8 @@ steps:
       [
         'build',
         '-t', 'asia-south1-docker.pkg.dev/$_PROJECT_ID/my-repo/auth-service:$COMMIT_SHA',
-        '-f', 'auth-service/Dockerfile',
-        'auth-service'
+        '-f', 'auth/Dockerfile',
+        'auth'
       ]
 
   # 2️⃣ Push Docker image
@@ -34,7 +34,7 @@ steps:
         gcloud container clusters get-credentials $_GKE_CLUSTER \
           --region $_GKE_REGION \
           --project $_PROJECT_ID
-        kubectl apply -f k8s/auth-service.yaml
+        kubectl apply -f auth/k8s/auth-service.yaml
 
 images:
   - 'asia-south1-docker.pkg.dev/$_PROJECT_ID/my-repo/auth-service:$COMMIT_SHA'

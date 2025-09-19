@@ -34,7 +34,7 @@ steps:
         gcloud container clusters get-credentials $_GKE_CLUSTER \
           --region $_GKE_REGION \
           --project $_PROJECT_ID
-        kubectl apply -f k8s/$_SERVICE_NAME.yaml
+        kubectl apply -f api-gateway/k8s/$_SERVICE_NAME.yaml
 
 
 images:
