@@ -26,8 +26,8 @@ steps:
         'asia-south1-docker.pkg.dev/$_PROJECT_ID/my-repo/$_IMAGE_NAME:$COMMIT_SHA'
       ]
 
-  # 3️⃣ Configure GKE credentials
-  - name: 'gcr.io/cloud-builders/gcloud'
+  # 3️⃣ Configure GKE credentials and deploy in one step
+  - name: 'gcr.io/cloud-builders/kubectl'
     entrypoint: 'bash'
     args:
       - '-c'
@@ -35,14 +35,7 @@ steps:
         gcloud container clusters get-credentials $_GKE_CLUSTER \
           --region $_GKE_REGION \
           --project $_PROJECT_ID
-
-  # 4️⃣ Deploy to GKE using kubectl
-  - name: 'gcr.io/cloud-builders/kubectl'
-    args:
-      [
-        'apply',
-        '-f', 'k8s/$_IMAGE_NAME.yaml'
-      ]
+        kubectl apply -f k8s/$_IMAGE_NAME.yaml
 
 images:
   - 'asia-south1-docker.pkg.dev/$_PROJECT_ID/my-repo/$_IMAGE_NAME:$COMMIT_SHA'
