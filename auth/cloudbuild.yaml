@@ -1,22 +1,48 @@
 options:
   logging: CLOUD_LOGGING_ONLY
 
-steps:
-  # Build Docker image
-  - name: 'gcr.io/cloud-builders/docker'
-    args: [
-      'build',
-      '-t', 'asia-south1-docker.pkg.dev/midyear-precept-472409-k3/my-repo/auth-service:$COMMIT_SHA',
-      '-f', 'auth/Dockerfile',
-      'auth'
-    ]
+substitutions:
+  _PROJECT_ID: midyear-precept-472409-k3
+  _GKE_CLUSTER: savoryroute-microservice
+  _GKE_REGION: asia-south1
+  _SERVICE_NAME: auth-service  # Change per microservice: server-service, gateway-service, auth-service
 
-  # Push image
+steps:
+  # 1️⃣ Build Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    args: [
-      'push',
-      'asia-south1-docker.pkg.dev/midyear-precept-472409-k3/my-repo/auth-service:$COMMIT_SHA'
-    ]
+    args:
+      [
+        'build',
+        '-t', 'asia-south1-docker.pkg.dev/$_PROJECT_ID/my-repo/$_SERVICE_NAME:$COMMIT_SHA',
+        '-f', '$_SERVICE_NAME/Dockerfile',
+        '$_SERVICE_NAME'
+      ]
+
+  # 2️⃣ Push Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'push',
+        'asia-south1-docker.pkg.dev/$_PROJECT_ID/my-repo/$_SERVICE_NAME:$COMMIT_SHA'
+      ]
+
+  # 3️⃣ Configure GKE credentials
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud container clusters get-credentials $_GKE_CLUSTER \
+          --region $_GKE_REGION \
+          --project $_PROJECT_ID
+
+  # 4️⃣ Deploy to GKE
+  - name: 'gcr.io/cloud-builders/kubectl'
+    args:
+      [
+        'apply',
+        '-f', 'k8s/$_SERVICE_NAME.yaml'
+      ]
 
 images:
-  - 'asia-south1-docker.pkg.dev/midyear-precept-472409-k3/my-repo/auth-service:$COMMIT_SHA'
+  - 'asia-south1-docker.pkg.dev/$_PROJECT_ID/my-repo/$_SERVICE_NAME:$COMMIT_SHA'
